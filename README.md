@@ -33,7 +33,9 @@ It lets you drag, drop, and link tables visually—then export your design as SQ
 npm install
 ```
 
-```shCreate a .env file
+## Create a .env file
+
+```sh
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
