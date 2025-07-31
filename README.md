@@ -43,9 +43,9 @@ OPENROUTER_API_KEY=your_openrouter_api_key
 npm run start
 ```
 
-##📄 Example Output
+## 📄 Example Output
 
-###MongoDB (Mongoose)
+### MongoDB (Mongoose)
 ```sh
 import mongoose, { Schema, model } from "mongoose";
 
@@ -57,7 +57,7 @@ const UserSchema = new Schema({
 export const User = model("User", UserSchema);
 ```
 
-###SQL
+### SQL
 ```sh
 CREATE TABLE users (
   id UUID PRIMARY KEY,
@@ -66,7 +66,7 @@ CREATE TABLE users (
 );
 ```
 
-###Prisma
+### Prisma
 ```sh
 model User {
   id    String  @id @default(uuid())
@@ -75,7 +75,7 @@ model User {
 }
 ```
 
-##🤝 Contributing
+## 🤝 Contributing
 
 PRs are welcome! Here's how to get started:
 - Fork the project
