@@ -68,8 +68,9 @@ export async function POST(request: NextRequest) {
                 status: 201
             }
         )
-    } catch (error: any) {
-        console.error("OpenRouter Error:", error.response?.data || error.message);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Unknown error occured";
+        console.error("OpenRouter Error:", message);
         return NextResponse.json(
             {
                 error: 'Failed to generate code'

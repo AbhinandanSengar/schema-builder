@@ -7,7 +7,7 @@ import {
     useEdgesState,
     useNodesState,
     Connection,
-    addEdge,
+    EdgeChange,
     Background,
     MiniMap,
     Controls,
@@ -129,7 +129,7 @@ export default function Canvas() {
         setEdges((eds) => [...eds, newEdge]);
     }
 
-    function handleEdgesChange(changes: any[]) {
+    function handleEdgesChange(changes: EdgeChange[]) {
         const removedEdges = changes.filter((c) => c.type === "remove");
 
         if (removedEdges.length > 0) {
@@ -218,8 +218,12 @@ export default function Canvas() {
         input.type = "file";
         input.accept = "application/json";
 
-        input.onchange = async (e: any) => {
-            const file = e.target.files?.[0];
+        input.onchange = async (e: Event) => {
+            const target = e.target;
+            if (!(target instanceof HTMLInputElement))
+                return;
+
+            const file = target.files?.[0];
             if (!file) return;
 
             try {
@@ -233,8 +237,12 @@ export default function Canvas() {
 
                 setNodes(parsed.nodes);
                 setEdges(parsed.edges);
-            } catch (error: any) {
-                alert("Failed to import schema: " + error.message);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    alert("Failed to import schema: " + error.message);
+                } else {
+                    alert("Failed to import schema due to unknown error.");
+                }
             }
         };
 
@@ -325,8 +333,12 @@ export default function Canvas() {
             }
 
             return data.code;
-        } catch (error: any) {
-            return `Error: ${error.message}`
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                return `Error: ${error.message}`;
+            } else {
+                return "An unknown error occurred while generating code.";
+            }
         }
     }
 
