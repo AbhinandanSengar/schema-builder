@@ -19,6 +19,7 @@ npm run start
 👤 **Abhinandan Pratap Singh Sengar**
 
 * Github: [@AbhinandanSengar](https://github.com/AbhinandanSengar)
+* LinkedIn: [@AbhinandanSengar](https://www.linkedin.com/in/abhinandansengar)
 
 ## Show your support
 
