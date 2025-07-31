@@ -1,0 +1,35 @@
+/* src/globals.css */
+@import "tailwindcss/preflight";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* ReactFlow dark mode fixes */
+.dark .react-flow__controls,
+.dark .react-flow__controls-button {
+  background: #1f2937 !important;
+  color: #d1d5db !important;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .react-flow__controls-button svg {
+  stroke: #d1d5db !important;
+}
+
+.dark .react-flow__minimap {
+  background: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .react-flow__minimap-mask {
+  fill: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .react-flow__minimap-node {
+  stroke: #9ca3af !important;
+  fill: #374151 !important;
+}
+
+.dark .react-flow__minimap-node.selected {
+  stroke: #3b82f6 !important;
+}
