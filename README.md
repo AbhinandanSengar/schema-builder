@@ -1,6 +1,31 @@
-<h1 align="center">Welcome to schema-builder 👋</h1>
+# 🧩 Schema Designer
 
-> in this users can come and create tables in reactflow canvas and can import/export JSON, generate the code of the created schema/JSON in different formats like prisma, sql, mongodb by the help of AI. Users can also collaborate with their friends.
+**Schema Designer** is a visual, interactive tool for designing database schemas with zero config and instant code generation.
+
+It lets you drag, drop, and link tables visually—then export your design as SQL, Prisma, or MongoDB code, powered by AI.
+
+---
+
+## ⚙️ Features
+
+- 🧱 Add tables and fields visually
+- 🔗 Define 1:1, 1:N, N:N relationships
+- 🎛️ Set field options (PK, unique, required, default)
+- 🔄 Import/export schema as JSON
+- 🧠 Generate SQL / Prisma / MongoDB code with AI
+- 🌗 Dark mode support
+- 🧰 Built-in toolbar for canvas controls
+
+---
+
+## 🛠 Tech Stack
+
+- **Next.js 14 (App Router)**
+- **React Flow (`@xyflow/react`)**
+- **TailwindCSS**
+- **Lucide Icons**
+- **OpenRouter + DeepSeek Chat AI**
+- **TypeScript**
 
 ## Install
 
@@ -8,11 +33,56 @@
 npm install
 ```
 
+```shCreate a .env file
+OPENROUTER_API_KEY=your_openrouter_api_key
+```
+
 ## Usage
 
 ```sh
 npm run start
 ```
+
+##📄 Example Output
+
+###MongoDB (Mongoose)
+```sh
+import mongoose, { Schema, model } from "mongoose";
+
+const UserSchema = new Schema({
+  name: { type: String, required: true },
+  email: { type: String, unique: true },
+});
+
+export const User = model("User", UserSchema);
+```
+
+###SQL
+```sh
+CREATE TABLE users (
+  id UUID PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE
+);
+```
+
+###Prisma
+```sh
+model User {
+  id    String  @id @default(uuid())
+  name  String
+  email String  @unique
+}
+```
+
+##🤝 Contributing
+
+PRs are welcome! Here's how to get started:
+- Fork the project
+- Create a feature branch: git checkout -b feature/something
+- Commit your changes: git commit -m 'Add something'
+- Push to your branch: git push origin feature/something
+- Open a pull request
 
 ## Author
 
