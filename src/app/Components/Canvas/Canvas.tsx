@@ -50,7 +50,7 @@ export default function Canvas() {
         window.addEventListener('edit-relationship', handleEditRelationship);
 
         return () => window.removeEventListener('edit-relationship', handleEditRelationship);
-    }, []);
+    }, [selectedEdgeId, editorPosition]);
 
     const updateRelationshipType = (type: RelationshipType) => {
         setEdges((edges) =>
@@ -98,9 +98,9 @@ export default function Canvas() {
             }
         };
 
-        const sourceNodeId = connection.source!;
+        // const sourceNodeId = connection.source!;
         const targetNodeId = connection.target!;
-        const sourceFieldId = connection.sourceHandle!;
+        // const sourceFieldId = connection.sourceHandle!;
         const targetFieldId = connection.targetHandle!;
 
         setNodes((nodes) =>

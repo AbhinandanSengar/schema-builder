@@ -21,7 +21,7 @@ export default function CustomEdge({
 
     useEffect(() => {
         setIsDark(document.documentElement.classList.contains('dark'));
-    }, []);
+    }, [isDark]);
 
     const handleLabelClick = (e: React.MouseEvent) => {
         const rect = (e.target as HTMLDivElement).getBoundingClientRect();
