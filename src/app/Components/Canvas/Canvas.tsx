@@ -66,7 +66,7 @@ export default function Canvas({ projectId }: CanvasProps) {
     }, [selectedEdgeId, editorPosition]);
 
     useEffect(() => {
-        loadedRef.current = false;  // Reset the ref when projectId changes
+        loadedRef.current = false;
         async function fetchProject() {
             try {
                 const { data } = await axios.get(`/api/projects/${projectId}`);

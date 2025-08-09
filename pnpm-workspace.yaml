@@ -3,6 +3,7 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - '@tailwindcss/oxide'
   - '@vercel/speed-insights'
+  - bcrypt
   - prisma
   - sharp
   - unrs-resolver

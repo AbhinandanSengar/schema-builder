@@ -13,7 +13,7 @@ export default function ThemeToggle() {
             document.documentElement.classList.add("dark");
             setIsDark(true);
         }
-    });
+    }, []);
 
     const toggleDarkMode = () => {
         const newMode = !isDark;

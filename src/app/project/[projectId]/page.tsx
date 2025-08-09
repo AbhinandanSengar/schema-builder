@@ -1,18 +1,16 @@
-import Canvas from "@/app/Components/Canvas/Canvas";
+import CanvasWrapper from "@/app/Components/CanvasWrapper";
 import { getAuthSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default async function Project({ params }: { params: { projectId: string } }) {
-    const session = getAuthSession();
+export default async function Project() {
+    const session = await getAuthSession();
     if (!session) {
         redirect('/auth/signin');
     }
 
-    const { projectId } = await params;
-
     return (
         <div>
-            <Canvas projectId={projectId} />
+            <CanvasWrapper />
         </div>
     )
 }

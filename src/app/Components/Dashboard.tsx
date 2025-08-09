@@ -190,7 +190,7 @@ export default function Dashboard() {
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    });
+    }, []);
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -216,7 +216,7 @@ export default function Dashboard() {
         };
 
         fetchProjects();
-    });
+    }, []);
 
     if (loading) {
         return <p className='text-muted-foreground text-center mt-10'>
