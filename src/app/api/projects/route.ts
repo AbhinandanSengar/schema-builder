@@ -4,10 +4,51 @@ import { getAuthSession } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
+import { Prisma } from '@prisma/client';
+
+type SchemaType = {
+    nodes?: {
+        id: string;
+        position: { x: number; y: number };
+        type: string;
+        data: {
+            tableName: string;
+            fields: Array<{
+                id: string;
+                name: string;
+                type: string;
+                isPrimary?: boolean;
+                isRequired?: boolean;
+                isUnique?: boolean;
+                isForeign?: boolean;
+                relationType?: string;
+            }>;
+        };
+    }[];
+    edges?: {
+        id: string;
+        source: string;
+        target: string;
+        sourceHandle?: string;
+        targetHandle?: string;
+        type: string;
+        data: {
+            relationship: string;
+        };
+    }[];
+};
+
 const ProjectSchema = z.object({
     name: z.string().min(1, "Project name is required"),
     description: z.string().optional(),
-    schema: z.record(z.string(), z.any()),
+    schema: z.custom<Prisma.JsonValue & SchemaType>((data) => {
+        try {
+            const parsed = JSON.parse(JSON.stringify(data));
+            return true;
+        } catch {
+            return false;
+        }
+    }, "Invalid schema format"),
     isPublic: z.boolean(),
 });
 
@@ -109,7 +150,7 @@ export async function GET(request: NextRequest) {
         });
 
         const transformed = projects.map(project => {
-            const schemaData = project.schema as any;
+            const schemaData = project.schema as { nodes?: { id: string }[] };
             const tablesCount = Array.isArray(schemaData?.nodes) ? schemaData.nodes.length : 0;
             const collaboratorsCount = (project.members?.length || 0) + 1;
 
@@ -117,7 +158,7 @@ export async function GET(request: NextRequest) {
                 id: project.id,
                 name: project.name,
                 description: project.description || "",
-                lastModified: formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true }),
+                lastModified: project.updatedAt ? formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true }) : "unknown",
                 collaborators: collaboratorsCount,
                 tables: tablesCount,
                 owner: project.owner,
