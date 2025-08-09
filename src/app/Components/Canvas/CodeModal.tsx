@@ -16,7 +16,7 @@ const FORMATS = [
     { label: 'MongoDB', value: 'mongodb' }
 ]
 
-export default function GenerateCode({ isOpen, onClose, onGenerate }: GenerateCodeProps) {
+export default function CodeModal({ isOpen, onClose, onGenerate }: GenerateCodeProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [format, setFormat] = useState<string>(FORMATS[0].value);
     const [generatedCode, setGeneratedCode] = useState<string | null>(null);

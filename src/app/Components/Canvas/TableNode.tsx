@@ -137,6 +137,7 @@ export default function TableNode({ id, data }: NodeProps) {
                         </div>
 
                         <select
+                            id={`type-${field.id}`}
                             value={field.type}
                             className="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-100"
                             onChange={(e) => updateField(field.id, { type: e.target.value })}

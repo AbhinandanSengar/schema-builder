@@ -2,31 +2,54 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import { Code2Icon, FileJsonIcon, PlusIcon, Redo2, Undo2 } from "lucide-react";
+import { Code2Icon, FileJsonIcon, PlusIcon, Redo2, Save, Undo2 } from "lucide-react";
+import axios from "axios";
+import { Project } from "@/lib/types";
+import { toast } from "sonner";
 
 type ToolbarProps = {
+    project: Project | null;
     addTable: () => void;
     exportJSON: () => void;
     importJSON: () => void;
     generateCode: () => void;
+    saveSchema: () => void;
 }
 
-export default function CanvasToolbar({ addTable, exportJSON, importJSON, generateCode }: ToolbarProps) {
+export default function CanvasToolbar({ project, addTable, exportJSON, importJSON, generateCode, saveSchema }: ToolbarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [projectName, setProjectName] = useState<string>("Untitled Project");
-    const [tempName, setTempName] = useState<string>(projectName);
+    const [editedName, setEditedName] = useState<string>('Untitled Project');
+    const [tempName, setTempName] = useState<string>(editedName);
 
     useEffect(() => {
-        if(isEditing) {
-            setTempName(projectName)
+        if (project?.name) {
+            setEditedName(project?.name);
         }
-    }, [isEditing, projectName]);
+    }, [project?.name]);
 
-    function handleSave() {
+
+    useEffect(() => {
+        if (isEditing) {
+            setTempName(editedName)
+        }
+    }, [isEditing, editedName]);
+
+    async function handleSave() {
+        if(!project?.id) {
+            console.error("Project ID is not available");
+            return
+        }
+
         const trimmed = tempName.trim() || "Untitled Project";
-        setProjectName(trimmed);
+
+        await axios.patch(`/api/projects/${project.id}`, {
+            name: trimmed
+        });
+
+        setEditedName(trimmed);
         setIsEditing(false);
+        toast.success(`Project name updated to "${trimmed}"`);
     }
 
     return (
@@ -51,7 +74,7 @@ export default function CanvasToolbar({ addTable, exportJSON, importJSON, genera
                         className="text-lg font-medium truncate max-w-[300px] cursor-pointer"
                         onClick={() => setIsEditing(true)}
                     >
-                        {projectName}
+                        {editedName}
                     </span>
                 )}
                 <div className="flex items-center gap-1">
@@ -79,6 +102,10 @@ export default function CanvasToolbar({ addTable, exportJSON, importJSON, genera
                 <Button variant={"default"} onClick={generateCode}>
                     <Code2Icon className="w-5 h-5 mr-1" />
                     Generate Code
+                </Button>
+                <Button variant={"default"} onClick={saveSchema}>
+                    <Save className="w-5 h-5 mr-1" />
+                    Save
                 </Button>
             </div>
         </div>

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthSession } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -6,6 +7,18 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "deepseek/deepseek-chat-v3-0324:free";
 
 export async function POST(request: NextRequest) {
+    const session = await getAuthSession();
+    if (!session) {
+        return NextResponse.json(
+            {
+                error: 'Unauthorized'
+            },
+            {
+                status: 401
+            }
+        );
+    }
+
     try {
         const { schema, format } = await request.json();
 
@@ -56,7 +69,7 @@ export async function POST(request: NextRequest) {
         );
 
         const generatedCode = resposne.data.choices[0]?.message.content.trim()
-            .replace(/^```(ts|javascript)?/i, "")
+            .replace(/^```(ts|javascript|sql|prisma|mongodb)?/i, "")
             .replace(/```$/, "")
             .trim();
 

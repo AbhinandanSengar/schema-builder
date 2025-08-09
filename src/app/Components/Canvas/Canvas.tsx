@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from "react";
 import {
     Node,
     Edge,
@@ -13,13 +14,21 @@ import {
     Controls,
 } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
-import { useEffect, useState } from "react";
+
+import axios from "axios";
+import { toast } from 'sonner';
 import TableNode from "./TableNode";
+import CodeModal from "./CodeModal";
 import CustomEdge from "./CustomEdge";
-import { RelationshipType, TableNodeData } from "@/lib/types";
 import CanvasToolbar from "./CanvasToolbar";
 import RelationshipModal from "./RelationshipModal";
-import GenerateCode from "./GenerateCode";
+import { Toaster } from "@/components/ui/sonner";
+import { Project, ProjectSchema, RelationshipType, TableNodeData } from "@/lib/types";
+
+
+type CanvasProps = {
+    projectId: string;
+}
 
 const nodeTypes = {
     'custom': TableNode
@@ -32,13 +41,17 @@ const edgeTypes = {
 const initialNodes: Node<TableNodeData>[] = [];
 const initialEdges: Edge[] = [];
 
-export default function Canvas() {
+export default function Canvas({ projectId }: CanvasProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+    const [project, setProject] = useState<Project | null>(null);
     const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
+    const [schema, setSchema] = useState<ProjectSchema | null>(null);
     const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
     const [editorPosition, setEditorPosition] = useState<{ x: number; y: number } | null>(null);
+    
+    const loadedRef = useRef(false);
 
     useEffect(() => {
         const handleEditRelationship = (e: Event) => {
@@ -52,39 +65,80 @@ export default function Canvas() {
         return () => window.removeEventListener('edit-relationship', handleEditRelationship);
     }, [selectedEdgeId, editorPosition]);
 
-    const updateRelationshipType = (type: RelationshipType) => {
-        setEdges((edges) =>
-            edges.map((edge) =>
-                edge.id === selectedEdgeId
-                    ? { ...edge, data: { ...edge.data, relationship: type } }
-                    : edge
-            )
-        );
-
-        setNodes((nodes) => {
-            const edge = edges.find((e) => e.id === selectedEdgeId);
-            if (!edge || !edge.target || !edge.targetHandle) return nodes;
-
-            return nodes.map((node) => {
-                if (node.id === edge.target) {
-                    return {
+    useEffect(() => {
+        loadedRef.current = false;  // Reset the ref when projectId changes
+        async function fetchProject() {
+            try {
+                const { data } = await axios.get(`/api/projects/${projectId}`);
+                if (data.project) {
+                    const sanitizedNodes = ((data.project.schema.nodes ?? []) as Node<TableNodeData>[]).map((node) => ({
                         ...node,
-                        data: {
-                            ...node.data,
-                            fields: node.data.fields.map((field) =>
-                                field.id === edge.targetHandle
-                                    ? { ...field, relationType: type }
-                                    : field
-                            )
-                        }
-                    };
-                }
-                return node;
-            });
-        });
+                        position: node.position ?? { x: 0, y: 0 },
+                    }));
+                    const sanitizedEdges = ((data.project.schema?.edges ?? []) as Edge[]).map((edge) => ({
+                        ...edge
+                    }));
 
-        setSelectedEdgeId(null);
-        setEditorPosition(null);
+                    setProject(data.project);
+                    setSchema(data.project.schema);
+                    setNodes(sanitizedNodes);
+                    setEdges(sanitizedEdges);
+
+                    if (!loadedRef.current) {
+                        toast.success(`Project "${data.project.name}" loaded successfully!`);
+                        loadedRef.current = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch project:', error);
+                toast.error("Failed to load project. Please try again.");
+            }
+        }
+
+        fetchProject();
+    }, [projectId]);
+
+    const updateRelationshipType = (type: RelationshipType) => {
+        try {
+            setEdges((edges) =>
+                edges.map((edge) =>
+                    edge.id === selectedEdgeId
+                        ? { ...edge, data: { ...edge.data, relationship: type } }
+                        : edge
+                )
+            );
+    
+            setNodes((nodes) => {
+                const edge = edges.find((e) => e.id === selectedEdgeId);
+                if (!edge || !edge.target || !edge.targetHandle) return nodes;
+    
+                return nodes.map((node) => {
+                    if (node.id === edge.target) {
+                        return {
+                            ...node,
+                            data: {
+                                ...node.data,
+                                fields: node.data.fields.map((field) =>
+                                    field.id === edge.targetHandle
+                                        ? { ...field, relationType: type }
+                                        : field
+                                )
+                            }
+                        };
+                    }
+                    return node;
+                });
+            });
+    
+            setSelectedEdgeId(null);
+            setEditorPosition(null);
+            toast.success(`Relationship updated to ${type}`);
+        } catch (error: unknown) {
+            toast.error("Failed to update relationship", {
+                description: error instanceof Error ? error.message : "Unknown error"
+            });
+            console.error("Failed to update relationship:", error);
+        }
     };
 
     function onConnect(connection: Connection) {
@@ -98,9 +152,9 @@ export default function Canvas() {
             }
         };
 
-        // const sourceNodeId = connection.source!;
+        const sourceNodeId = connection.source!;
         const targetNodeId = connection.target!;
-        // const sourceFieldId = connection.sourceHandle!;
+        const sourceFieldId = connection.sourceHandle!;
         const targetFieldId = connection.targetHandle!;
 
         setNodes((nodes) =>
@@ -169,16 +223,24 @@ export default function Canvas() {
     }
 
     function addTable() {
-        const newNode: Node<TableNodeData> = {
-            id: crypto.randomUUID(),
-            type: "custom",
-            position: { x: Math.random() * 300 + 100, y: Math.random() * 500 },
-            data: {
-                tableName: "New Table",
-                fields: [],
-            },
-        };
-        setNodes((prev) => [...prev, newNode]);
+        try {
+            const newNode: Node<TableNodeData> = {
+                id: crypto.randomUUID(),
+                type: "custom",
+                position: { x: Math.random() * 300 + 500, y: Math.random() * 650 },
+                data: {
+                    tableName: "New Table",
+                    fields: [],
+                },
+            };
+            setNodes((prev) => [...prev, newNode]);
+            toast.success("New table added");
+        } catch (error: unknown) {
+            toast.error("Failed to add new table", {
+                description: error instanceof Error ? error.message : "Unknown error"
+            });
+            console.error("Failed to add new table:", error);
+        }
     }
 
     function exportJSON() {
@@ -211,6 +273,7 @@ export default function Canvas() {
         a.click();
 
         URL.revokeObjectURL(url);
+        toast.success("Schema exported as database-schema.json");
     }
 
     function importJSON() {
@@ -231,22 +294,71 @@ export default function Canvas() {
                 const parsed = JSON.parse(text);
 
                 if (!parsed.nodes || !parsed.edges) {
-                    alert("Invalid file format.");
+                    toast.error("Invalid file format");
+                    console.error("Invalid file format");
                     return;
                 }
 
                 setNodes(parsed.nodes);
                 setEdges(parsed.edges);
+                toast.success("Schema imported successfully");
             } catch (error: unknown) {
-                if (error instanceof Error) {
-                    alert("Failed to import schema: " + error.message);
-                } else {
-                    alert("Failed to import schema due to unknown error.");
-                }
+                toast.error("Failed to import schema", {
+                    description: error instanceof Error ? error.message : "Unknown error"
+                });
+                console.error("Failed to import schema:", error);
             }
         };
 
         input.click();
+    }
+
+    async function saveSchema() {
+        try {
+            const updatedSchema: ProjectSchema = {
+                nodes: nodes.map((node) => ({
+                    id: node.id,
+                    position: node.position,
+                    data: {
+                        tableName: node.data.tableName,
+                        fields: node.data.fields,
+                        primaryKeys: node.data.fields
+                            .filter((field) => field.isPrimary)
+                            .map((field) => field.id),
+                    },
+                    type: node.type,
+                    width: node.width,
+                    height: node.height,
+                    selected: node.selected,
+                    dragging: node.dragging,
+                })),
+                edges: edges.map((edge) => ({
+                    id: edge.id,
+                    source: edge.source,
+                    target: edge.target,
+                    sourceHandle: edge.sourceHandle,
+                    targetHandle: edge.targetHandle,
+                    type: edge.type,
+                    data: edge.data,
+                    animated: edge.animated,
+                    selected: edge.selected,
+                })),
+            };
+
+            const response = await axios.patch(`/api/projects/${projectId}`, {
+                schema: updatedSchema,
+            });
+
+            if (response.status === 200) {
+                toast.success("Schema saved successfully!");
+                console.log("Schema saved:", response.data);
+            }
+        } catch (error: unknown) {
+            toast.error("Failed to save schema", {
+                description: error instanceof Error ? error.message : "Unknown error"
+            });
+            console.error("Failed to save schema:", error);
+        }
     }
 
     async function generateCodeHandler(format: string): Promise<string> {
@@ -332,26 +444,29 @@ export default function Canvas() {
                 throw new Error(data.error || "Failed to generate code");
             }
 
+            toast.success(`Code generated in ${format} format`);
+            console.log("Generated code:", data.code);
             return data.code;
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                return `Error: ${error.message}`;
-            } else {
-                return "An unknown error occurred while generating code.";
-            }
+            toast.error("Code generate error", {
+                description: `Failed to generate code`,
+            });
+            return "Failed to generate code: " + (error instanceof Error ? error.message : "Unknown error");
         }
     }
 
     return (
-        <div className="flex h-[calc(100vh-56px)] overflow-hidden bg-white dark:bg-gray-900 transition-colors duration-300">
+        <div className="flex flex-col h-[100vh] overflow-hidden bg-white dark:bg-gray-900 transition-colors duration-300">
             <div className="flex flex-col flex-1 transition-all duration-300 bg-white dark:bg-gray-900">
                 <CanvasToolbar
+                    project={project}
                     addTable={addTable}
                     exportJSON={exportJSON}
                     importJSON={importJSON}
                     generateCode={() => setIsCodeModalOpen(true)}
+                    saveSchema={saveSchema}
                 />
-                <GenerateCode
+                <CodeModal
                     isOpen={isCodeModalOpen}
                     onClose={() => setIsCodeModalOpen(false)}
                     onGenerate={generateCodeHandler}
@@ -395,6 +510,8 @@ export default function Canvas() {
                     }}
                 />
             )}
+
+            <Toaster richColors />
         </div>
     )
 }

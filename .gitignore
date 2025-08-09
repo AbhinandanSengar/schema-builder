@@ -51,3 +51,6 @@ Icon?
 Thumbs.db
 ehthumbs.db
 desktop.ini
+
+/src/generated/prisma
+dump*.sql

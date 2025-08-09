@@ -31,7 +31,6 @@ export default function ThemeToggle() {
         <Button
             onClick={toggleDarkMode}
             variant="outline"
-            size="lg"
             className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
             {isDark ? (
