@@ -407,7 +407,7 @@ export default function Dashboard() {
                     <DialogHeader>
                         <DialogTitle>Share Project</DialogTitle>
                         <DialogDescription>
-                            Share "{selectedProjectForShare?.name}" with others
+                            Share {selectedProjectForShare?.name} with others
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
