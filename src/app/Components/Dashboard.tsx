@@ -44,7 +44,6 @@ export default function Dashboard() {
     const [shareRole, setShareRole] = useState<string>('viewer');
     const [shareLink] = useState('https://schema-builder.app/project/shared/');
     const [linkCopied, setLinkCopied] = useState(false);
-    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [activeProjectMenu, setActiveProjectMenu] = useState<string | null>(null);
     const [newProjectName, setNewProjectName] = useState('');
     const [newProjectDescription, setNewProjectDescription] = useState('');
@@ -165,10 +164,11 @@ export default function Dashboard() {
                 description: "Share link has been copied to clipboard.",
             });
             setTimeout(() => setLinkCopied(false), 2000);
-        } catch (err) {
+        } catch (error: unknown) {
             toast("Failed to copy link", {
                 description: "Please copy the link manually.",
             });
+            console.error("Failed to copy link:", error);
         }
     };
 
@@ -183,9 +183,6 @@ export default function Dashboard() {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Element;
-            if (!target.closest('.profile-dropdown') && !target.closest('.profile-button')) {
-                setShowProfileDropdown(false);
-            }
             if (!target.closest('.project-menu') && !target.closest('.project-menu-button')) {
                 setActiveProjectMenu(null);
             }
@@ -193,7 +190,7 @@ export default function Dashboard() {
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    });
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -219,11 +216,7 @@ export default function Dashboard() {
         };
 
         fetchProjects();
-    }, []);
-
-    useEffect(() => {
-        console.log(projects)
-    }, [projects]);
+    });
 
     if (loading) {
         return <p className='text-muted-foreground text-center mt-10'>

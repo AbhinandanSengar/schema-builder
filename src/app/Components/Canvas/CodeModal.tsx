@@ -34,7 +34,8 @@ export default function CodeModal({ isOpen, onClose, onGenerate }: GenerateCodeP
             const code = await onGenerate(format);
             setGeneratedCode(code);
         } catch (error) {
-            setError("Failed to generate code!")
+            setError("Failed to generate code!");
+            console.error("Code generation error:", error);
         } finally {
             setLoading(false);
         }

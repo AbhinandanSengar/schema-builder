@@ -29,7 +29,7 @@ export default function TableNode({ id, data }: NodeProps) {
             const lastInput = document.querySelector(`#field-${fields[fields.length - 1].id}`);
             (lastInput as HTMLInputElement)?.focus();
         }
-    }, [fields.length]);
+    }, [fields, fields.length]);
 
 
     const updateNodeData = (newData: Partial<TableNodeData>) => {

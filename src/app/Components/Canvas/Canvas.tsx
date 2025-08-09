@@ -96,7 +96,7 @@ export default function Canvas({ projectId }: CanvasProps) {
         }
 
         fetchProject();
-    }, [projectId]);
+    }, [projectId, setNodes, setEdges]);
 
     const updateRelationshipType = (type: RelationshipType) => {
         try {
@@ -152,9 +152,9 @@ export default function Canvas({ projectId }: CanvasProps) {
             }
         };
 
-        const sourceNodeId = connection.source!;
+        // const sourceNodeId = connection.source!;
         const targetNodeId = connection.target!;
-        const sourceFieldId = connection.sourceHandle!;
+        // const sourceFieldId = connection.sourceHandle!;
         const targetFieldId = connection.targetHandle!;
 
         setNodes((nodes) =>

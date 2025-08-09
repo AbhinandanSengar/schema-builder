@@ -1,6 +1,6 @@
 'use client';
 
-import { Database, Users } from "lucide-react";
+import { Database } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";

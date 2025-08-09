@@ -41,14 +41,7 @@ type SchemaType = {
 const ProjectSchema = z.object({
     name: z.string().min(1, "Project name is required"),
     description: z.string().optional(),
-    schema: z.custom<Prisma.JsonValue & SchemaType>((data) => {
-        try {
-            const parsed = JSON.parse(JSON.stringify(data));
-            return true;
-        } catch {
-            return false;
-        }
-    }, "Invalid schema format"),
+    schema: z.custom<Prisma.JsonValue & SchemaType>(() =>  "Invalid schema format"),
     isPublic: z.boolean(),
 });
 
@@ -114,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const session = await getAuthSession();
     if (!session?.user?.id) {
         return NextResponse.json(

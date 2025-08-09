@@ -1,6 +1,6 @@
 import Canvas from "@/app/Components/Canvas/Canvas";
 import { getAuthSession } from "@/lib/auth";
-import { redirect, useParams } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export default async function Project({ params }: { params: { projectId: string } }) {
     const session = getAuthSession();
