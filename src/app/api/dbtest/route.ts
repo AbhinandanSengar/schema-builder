@@ -1,33 +1,21 @@
-import net from 'net';
-import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
-    const host = 'db.cydnqhdivufuuduhnfwq.supabase.co';
-    const port = 5432;
-
-    return new Promise<Response>((resolve) => {
-        const socket = new net.Socket();
-        const timeout = 5000; // 5 seconds timeout
-
-        const onError = (err: Error) => {
-            socket.destroy();
-            resolve(
-                NextResponse.json({ success: false, error: err.message }, { status: 500 })
-            );
-        };
-
-        socket.setTimeout(timeout);
-        socket.on('timeout', () => onError(new Error('Connection timed out')));
-        socket.on('error', onError);
-
-        socket.connect(port, host, () => {
-            socket.end();
-            resolve(
-                NextResponse.json(
-                    { success: true, message: `Connected to ${host}:${port}` },
-                    { status: 200 }
-                )
-            );
-        });
-    });
+    try {
+        await prisma.$connect()
+        const userCount = await prisma.user.count()
+        return NextResponse.json({
+            message: 'Database connected successfully',
+            userCount
+        })
+    } catch (error) {
+        console.error('Database connection error:', error)
+        return NextResponse.json(
+            { error: 'Database connection failed', details: error },
+            { status: 500 }
+        )
+    } finally {
+        await prisma.$disconnect()
+    }
 }
