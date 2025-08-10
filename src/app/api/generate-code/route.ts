@@ -6,7 +6,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "google/gemini-2.0-flash-exp:free";
 
-function getPrompt(format: string, schema: any): string {
+function getPrompt(format: string, schema: JSON): string {
     const schemaStr = JSON.stringify(schema, null, 2);
     const lowerFormat = format.toLowerCase();
 
