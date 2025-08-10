@@ -10,8 +10,7 @@ import {
     Connection,
     EdgeChange,
     Background,
-    MiniMap,
-    Controls,
+    MiniMap
 } from "@xyflow/react";
 import '@xyflow/react/dist/style.css';
 
@@ -45,12 +44,13 @@ export default function Canvas({ projectId }: CanvasProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+    const [canvasLock, setCanvasLock] = useState<boolean>(false);
     const [project, setProject] = useState<Project | null>(null);
     const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
     const [schema, setSchema] = useState<ProjectSchema | null>(null);
     const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
     const [editorPosition, setEditorPosition] = useState<{ x: number; y: number } | null>(null);
-    
+
     const loadedRef = useRef(false);
 
     useEffect(() => {
@@ -66,6 +66,7 @@ export default function Canvas({ projectId }: CanvasProps) {
     }, [selectedEdgeId, editorPosition]);
 
     useEffect(() => {
+        console.log(projectId)
         loadedRef.current = false;
         async function fetchProject() {
             try {
@@ -107,11 +108,11 @@ export default function Canvas({ projectId }: CanvasProps) {
                         : edge
                 )
             );
-    
+
             setNodes((nodes) => {
                 const edge = edges.find((e) => e.id === selectedEdgeId);
                 if (!edge || !edge.target || !edge.targetHandle) return nodes;
-    
+
                 return nodes.map((node) => {
                     if (node.id === edge.target) {
                         return {
@@ -129,7 +130,7 @@ export default function Canvas({ projectId }: CanvasProps) {
                     return node;
                 });
             });
-    
+
             setSelectedEdgeId(null);
             setEditorPosition(null);
             toast.success(`Relationship updated to ${type}`);
@@ -465,6 +466,8 @@ export default function Canvas({ projectId }: CanvasProps) {
                     importJSON={importJSON}
                     generateCode={() => setIsCodeModalOpen(true)}
                     saveSchema={saveSchema}
+                    canvasLock={canvasLock}
+                    handleCanvasMove={() => setCanvasLock(!canvasLock)}
                 />
                 <CodeModal
                     isOpen={isCodeModalOpen}
@@ -482,6 +485,12 @@ export default function Canvas({ projectId }: CanvasProps) {
                         edgeTypes={edgeTypes}
                         snapToGrid
                         snapGrid={[20, 20]}
+                        panOnDrag={!canvasLock}
+                        panOnScroll={!canvasLock}
+                        zoomOnDoubleClick={!canvasLock}
+                        nodesDraggable={!canvasLock}
+                        nodesConnectable={!canvasLock}
+                        elementsSelectable={!canvasLock}
                     >
                         <MiniMap
                             pannable
@@ -490,9 +499,6 @@ export default function Canvas({ projectId }: CanvasProps) {
                             maskColor="rgba(0,0,0,0.2)"
                             className="dark:bg-gray-800 dark:border-gray-700"
                             nodeStrokeWidth={3}
-                        />
-                        <Controls
-                            className="bg-gray-800 text-gray-500 rounded-md shadow-md"
                         />
                         <Background />
                     </ReactFlow>

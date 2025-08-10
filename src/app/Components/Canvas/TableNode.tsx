@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
@@ -15,7 +15,7 @@ type NodeProps = {
 }
 
 const fieldTypes = [
-    'INTEGER', 'STRING', 'TEXT', 'BOOLEAN', 'DATE', 'DATETIME',
+    'INTEGER', 'STRING', 'BOOLEAN', 'DATE', 'DATETIME',
     'FLOAT', 'DECIMAL', 'JSON', 'UUID', 'ENUM'
 ];
 
@@ -23,14 +23,6 @@ export default function TableNode({ id, data }: NodeProps) {
     const { fields, tableName } = data;
     const { setNodes } = useReactFlow();
     const [isEditing, setIsEditing] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (fields.length > 0) {
-            const lastInput = document.querySelector(`#field-${fields[fields.length - 1].id}`);
-            (lastInput as HTMLInputElement)?.focus();
-        }
-    }, [fields, fields.length]);
-
 
     const updateNodeData = (newData: Partial<TableNodeData>) => {
         setNodes((nodes) =>
@@ -59,6 +51,11 @@ export default function TableNode({ id, data }: NodeProps) {
         };
 
         updateNodeData({ fields: [...fields, newField] });
+
+        setTimeout(() => {
+            const lastInput = document.querySelector<HTMLInputElement>(`#field-${newField.id}`);
+            lastInput?.focus();
+        }, 0);
     }
 
     const updateField = (fieldId: string, changes: Partial<Field>) => {
