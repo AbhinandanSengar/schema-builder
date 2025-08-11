@@ -1,11 +1,11 @@
 'use client';
 
+import { toast } from "sonner";
 import { Database } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler";
 
 export default function Header() {
     const { status } = useSession();
@@ -17,7 +17,7 @@ export default function Header() {
 
     const handleLogOut = async () => {
         await signOut({ redirect: false });
-        toast.success("Logged out successfully");
+        toast("Logged out successfully");
         router.push("/auth/signin")
     }
 
@@ -39,7 +39,7 @@ export default function Header() {
             </div>
 
             <div className="flex gap-2 items-center">
-                <ThemeToggle />
+                <AnimatedThemeToggler />
 
                 <Button
                     variant="default"

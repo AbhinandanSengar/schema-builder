@@ -1,4 +1,4 @@
-import NextAuth, { DefaultSession, Session, SessionStrategy, User } from "next-auth";
+import NextAuth, { Account, DefaultSession, Session, SessionStrategy, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -16,7 +16,6 @@ declare module 'next-auth' {
 }
 
 export const authOptions = {
-    adapter: PrismaAdapter(prisma),
     session: {
         strategy: 'jwt' as SessionStrategy,
     },
@@ -48,6 +47,10 @@ export const authOptions = {
                     throw new Error('No user found with the provided email');
                 }
 
+                if (!user.emailVerified) {
+                    throw new Error('Please verify your email before signing in. Check your inbox for the verification link.');
+                }
+
                 const isValidPassword = await bcrypt.compare(credentials.password, user.hashedPassword);
                 if (!isValidPassword) {
                     throw new Error('Invalid login credentials');
@@ -63,10 +66,32 @@ export const authOptions = {
         })
     ],
     callbacks: {
-        async jwt({ token, user }: { token: JWT, user: User }) {
-            if (user) {
+        async jwt({ token, user, account }: { token: JWT, user?: User, account?: Account | null }) {
+            if (user && account && (account.provider === 'google' || account.provider === 'github')) {
+                try {
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email: user.email! }
+                    });
+
+                    if (!existingUser) {
+                        const newUser = await prisma.user.create({
+                            data: {
+                                email: user.email!,
+                                name: user.name || '',
+                                image: user.image,
+                            }
+                        });
+                        token.id = newUser.id;
+                    } else {
+                        token.id = existingUser.id;
+                    }
+                } catch (error) {
+                    console.error('Error saving OAuth user:', error);
+                }
+            } else if (user) {
                 token.id = user.id;
             }
+
             return token;
         },
 

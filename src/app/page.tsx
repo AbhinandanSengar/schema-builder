@@ -69,9 +69,14 @@ function App() {
                     <div className="flex items-center space-x-2">
                         <h1 className="text-2xl font-bold text-gray-900">Schema Builder</h1>
                     </div>
-                    <Button onClick={handleDashboardRedirect}>
-                        Open Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <div className='flex items-center space-x-4'>
+                        <Button variant={"outline"} onClick={() => router.push("/auth/signin")}>
+                            Log In
+                        </Button>
+                        <Button onClick={() => router.push("/auth/signup")}>
+                            Sign Up
+                        </Button>
+                    </div>
                 </div>
             </header>
 
@@ -104,7 +109,7 @@ function App() {
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                         <Button variant="outline" size="lg" className="text-lg px-8 py-6 h-auto">
-                            Watch Demo
+                            View Docs
                         </Button>
                     </div>
 
@@ -204,7 +209,7 @@ function App() {
                 </div>
             </section>
 
-            <section className="py-20 px-4 bg-gray-900 text-white">
+            {/* <section className="py-20 px-4 bg-gray-900 text-white">
                 <div className="container mx-auto max-w-4xl text-center">
                     <h2 className="text-4xl font-bold mb-6">
                         Ready to Design Your Next Schema?
@@ -232,7 +237,7 @@ function App() {
                     </div>
 
                 </div>
-            </section>
+            </section> */}
 
             <footer className="py-12 px-4 bg-white border-t">
                 <div className="container mx-auto max-w-6xl">

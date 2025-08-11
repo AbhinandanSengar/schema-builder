@@ -75,7 +75,7 @@ export default function SignUp() {
                 }
             });
 
-            if (res.status !== 200) {
+            if (res.status !== 201) {
                 setIsLoading(false);
                 toast.error('Failed to create account. Please try again.');
                 return;
@@ -99,7 +99,7 @@ export default function SignUp() {
                             <CheckCircle className="w-8 h-8 text-green-600" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
-                        <p className="text-gray-600 mb-6">Welcome aboard, {SignUpData.name}! Your account has been successfully created.</p>
+                        <h3 className="text-gray-600 mb-6">Welcome aboard, {SignUpData.name}!<br /> Please verify your email before signing in.</h3>
                         <Button
                             onClick={() => {
                                 setIsSubmitted(false);
@@ -107,7 +107,7 @@ export default function SignUp() {
                             }}
                             className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transform hover:scale-[1.02] transition-all duration-200"
                         >
-                            Proceed to Dashboard
+                            Proceed to Sign In
                         </Button>
                     </div>
                 </div>

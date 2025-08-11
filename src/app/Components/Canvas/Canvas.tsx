@@ -86,7 +86,7 @@ export default function Canvas({ projectId }: CanvasProps) {
                     setEdges(sanitizedEdges);
 
                     if (!loadedRef.current) {
-                        toast.success(`Project "${data.project.name}" loaded successfully!`);
+                        toast(`Project "${data.project.name}" loaded successfully!`);
                         loadedRef.current = true;
                     }
                 }
@@ -133,7 +133,7 @@ export default function Canvas({ projectId }: CanvasProps) {
 
             setSelectedEdgeId(null);
             setEditorPosition(null);
-            toast.success(`Relationship updated to ${type}`);
+            toast(`Relationship updated to ${type}`);
         } catch (error: unknown) {
             toast.error("Failed to update relationship", {
                 description: error instanceof Error ? error.message : "Unknown error"
@@ -235,7 +235,7 @@ export default function Canvas({ projectId }: CanvasProps) {
                 },
             };
             setNodes((prev) => [...prev, newNode]);
-            toast.success("New table added");
+            toast("New table added");
         } catch (error: unknown) {
             toast.error("Failed to add new table", {
                 description: error instanceof Error ? error.message : "Unknown error"
@@ -274,7 +274,7 @@ export default function Canvas({ projectId }: CanvasProps) {
         a.click();
 
         URL.revokeObjectURL(url);
-        toast.success("Schema exported as database-schema.json");
+        toast("Schema exported as database-schema.json");
     }
 
     function importJSON() {
@@ -302,7 +302,7 @@ export default function Canvas({ projectId }: CanvasProps) {
 
                 setNodes(parsed.nodes);
                 setEdges(parsed.edges);
-                toast.success("Schema imported successfully");
+                toast("Schema imported successfully");
             } catch (error: unknown) {
                 toast.error("Failed to import schema", {
                     description: error instanceof Error ? error.message : "Unknown error"
@@ -351,7 +351,7 @@ export default function Canvas({ projectId }: CanvasProps) {
             });
 
             if (response.status === 200) {
-                toast.success("Schema saved successfully!");
+                toast("Schema saved successfully!");
                 console.log("Schema saved:", response.data);
             }
         } catch (error: unknown) {

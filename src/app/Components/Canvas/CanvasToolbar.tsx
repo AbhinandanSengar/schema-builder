@@ -1,12 +1,12 @@
 import clsx from 'clsx';
 import { Panel } from "@xyflow/react";
 import { Project } from "@/lib/types";
-import ThemeToggle from '../ThemeToggle';
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import * as Toolbar from '@radix-ui/react-toolbar';
 import { ChevronLeftIcon, LockClosedIcon, LockOpen1Icon } from '@radix-ui/react-icons';
 import { Code2Icon, FileDownIcon, FileUpIcon, PlusIcon, Redo2Icon, Save, Undo2Icon, UsersIcon } from "lucide-react";
+import { AnimatedThemeToggler } from '@/components/magicui/animated-theme-toggler';
 
 type ToolbarProps = {
     project: Project | null;
@@ -126,7 +126,7 @@ export default function CanvasToolbar({ project, canvasLock, addTable, exportJSO
             </Panel>
 
             <Panel position='top-right' className='flex items-center gap-2'>
-                <ThemeToggle />
+                <AnimatedThemeToggler />
 
                 <Button
                     variant="default"

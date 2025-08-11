@@ -42,7 +42,7 @@ export default function Dashboard() {
     const [showShareModal, setShowShareModal] = useState(false);
     const [selectedProjectForShare, setSelectedProjectForShare] = useState<Project | null>(null);
     const [shareRole, setShareRole] = useState<string>('viewer');
-    const [shareLink] = useState('https://schema-builder.app/project/shared/');
+    const [shareLink] = useState('https://schema-builder.sengar.app/project/shared/');
     const [linkCopied, setLinkCopied] = useState(false);
     const [activeProjectMenu, setActiveProjectMenu] = useState<string | null>(null);
     const [newProjectName, setNewProjectName] = useState('');
@@ -83,7 +83,7 @@ export default function Dashboard() {
                 }
             ]);
 
-            toast.success("Project created successfully", {
+            toast("Project created successfully", {
                 description: `"${newProjectName}" has been added to your projects.`,
             });
 
@@ -128,7 +128,7 @@ export default function Dashboard() {
             try {
                 await axios.delete(`/api/projects/${projectId}`);
                 setProjects(prev => prev.filter(p => p.id !== projectId));
-                toast.success("Project moved to trash", {
+                toast("Project moved to trash", {
                     description: `${project?.name} has been moved to trash.`,
                 });
             } catch (error: unknown) {
@@ -143,7 +143,7 @@ export default function Dashboard() {
                     name: project.name
                 });
                 setProjects(prev => prev.map(p => p.id === projectId ? data.project : p));
-                toast.success("Project updated", {
+                toast("Project updated", {
                     description: `${project?.name} has been updated.`,
                 });
             } catch (error: unknown) {
@@ -165,7 +165,7 @@ export default function Dashboard() {
             });
             setTimeout(() => setLinkCopied(false), 2000);
         } catch (error: unknown) {
-            toast("Failed to copy link", {
+            toast.error("Failed to copy link", {
                 description: "Please copy the link manually.",
             });
             console.error("Failed to copy link:", error);
@@ -202,7 +202,7 @@ export default function Dashboard() {
                 const data = await res.json();
                 setProjects(data.projects || []);
 
-                toast.success("Projects loaded successfully", {
+                toast("Projects loaded successfully", {
                     description: `${data.projects.length} projects found.`,
                 });
             } catch (error: unknown) {
