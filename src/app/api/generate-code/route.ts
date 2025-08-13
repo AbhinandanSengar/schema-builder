@@ -2,9 +2,9 @@ import axios from "axios";
 import { getAuthSession } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "google/gemini-2.0-flash-exp:free";
+const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
+const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
+const MISTRAL_MODEL = "codestral-latest";
 
 function getPrompt(format: string, schema: JSON): string {
     const schemaStr = JSON.stringify(schema, null, 2);
@@ -75,11 +75,11 @@ export async function POST(request: NextRequest) {
             }
         );
     }
-
-    if (!OPENROUTER_API_KEY) {
+    
+    if (!MISTRAL_API_KEY) {
         return NextResponse.json(
             {
-                error: "Server misconfiguration: Missing API key"
+                error: "Server misconfiguration: Missing Mistral API key"
             },
             {
                 status: 500
@@ -90,32 +90,10 @@ export async function POST(request: NextRequest) {
     try {
         const { schema, format } = await request.json();
 
-        if (!schema || !format) {
+        if (!schema || !format || typeof schema !== "object" || Array.isArray(schema)) {
             return NextResponse.json(
                 {
-                    error: 'Missing schema or format'
-                },
-                {
-                    status: 400
-                }
-            )
-        }
-
-        if (!schema || !format) {
-            return NextResponse.json(
-                {
-                    error: "Missing schema or format"
-                },
-                {
-                    status: 400
-                }
-            );
-        }
-
-        if (typeof schema !== "object" || Array.isArray(schema)) {
-            return NextResponse.json(
-                {
-                    error: "Schema must be an object"
+                    error: "Missing or invalid schema/format"
                 },
                 {
                     status: 400
@@ -136,22 +114,22 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const resposne = await axios.post(
-            OPENROUTER_API_URL,
+        const res = await axios.post(
+            MISTRAL_API_URL,
             {
-                model: MODEL,
+                model: MISTRAL_MODEL,
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3
             },
             {
                 headers: {
-                    Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+                    Authorization: `Bearer ${MISTRAL_API_KEY}`,
                     "Content-Type": "application/json",
                 },
             }
-        );
+        )
 
-        const generatedCode = resposne.data.choices[0]?.message.content
+        const generatedCode = res.data.choices[0]?.message.content
             .replace(/```[\s\S]*?\n([\s\S]*?)```/m, "$1")
             .trim();
 
@@ -165,7 +143,7 @@ export async function POST(request: NextRequest) {
         )
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-            console.error("OpenRouter API Error:", error.response?.data || error.message);
+            console.error("Mistral API Error:", error.response?.data || error.message);
         } else {
             console.error("Unexpected Error:", error);
         }
