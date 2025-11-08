@@ -3,18 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import {
     Plus,
-    Database,
     Clock,
-    Users,
-    MoreHorizontal,
-    Download,
-    Share2,
     Trash2,
-    Copy,
-    CheckCircle,
-    PencilLine
+    Download,
+    Database,
+    PencilLine,
+    MoreHorizontal,
 } from 'lucide-react';
-
+import { Dialog,
+    DialogTitle,
+    DialogHeader,
+    DialogFooter,
+    DialogContent,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import axios from 'axios';
 import Header from './Header';
 import { toast } from 'sonner';
@@ -24,8 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useSession } from 'next-auth/react';
 
 interface Project {
     id: string;
@@ -38,16 +39,12 @@ interface Project {
 
 export default function Dashboard() {
     const router = useRouter();
-    const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-    const [showShareModal, setShowShareModal] = useState(false);
-    const [selectedProjectForShare, setSelectedProjectForShare] = useState<Project | null>(null);
-    const [shareRole, setShareRole] = useState<string>('viewer');
-    const [shareLink] = useState('https://schema-builder.sengar.app/project/shared/');
-    const [linkCopied, setLinkCopied] = useState(false);
-    const [activeProjectMenu, setActiveProjectMenu] = useState<string | null>(null);
-    const [newProjectName, setNewProjectName] = useState('');
-    const [newProjectDescription, setNewProjectDescription] = useState('');
+    const { data: session } = useSession();
     const [loading, setLoading] = useState<boolean>(true);
+    const [newProjectName, setNewProjectName] = useState('');
+    const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+    const [newProjectDescription, setNewProjectDescription] = useState('');
+    const [activeProjectMenu, setActiveProjectMenu] = useState<string | null>(null);
 
     const [projects, setProjects] = useState<Project[]>([]);
 
@@ -66,7 +63,7 @@ export default function Dashboard() {
                 name: newProjectName,
                 description: newProjectDescription,
                 schema: {},
-                isPublic: false
+                userId: session?.user?.id
             });
 
             const { project } = response.data;
@@ -121,9 +118,6 @@ export default function Dashboard() {
             toast("Download started", {
                 description: `Downloading ${project?.name} schema as JSON...`,
             });
-        } else if (action === 'share') {
-            setSelectedProjectForShare(project || null);
-            setShowShareModal(true);
         } else if (action === 'trash') {
             try {
                 await axios.delete(`/api/projects/${projectId}`);
@@ -155,30 +149,6 @@ export default function Dashboard() {
         }
     };
 
-    const handleCopyLink = async () => {
-        const fullLink = `${shareLink}${selectedProjectForShare?.id}`;
-        try {
-            await navigator.clipboard.writeText(fullLink);
-            setLinkCopied(true);
-            toast("Link copied!", {
-                description: "Share link has been copied to clipboard.",
-            });
-            setTimeout(() => setLinkCopied(false), 2000);
-        } catch (error: unknown) {
-            toast.error("Failed to copy link", {
-                description: "Please copy the link manually.",
-            });
-            console.error("Failed to copy link:", error);
-        }
-    };
-
-    const handleShareModalClose = () => {
-        setShowShareModal(false);
-        setSelectedProjectForShare(null);
-        setShareRole('viewer');
-        setLinkCopied(false);
-    };
-
     // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -192,6 +162,7 @@ export default function Dashboard() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Fetch projects on dashboard load
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -291,7 +262,6 @@ export default function Dashboard() {
                                             <div className="project-menu absolute right-0 mt-2 w-44 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
                                                 {[
                                                     { label: 'Edit', icon: PencilLine, action: 'edit' },
-                                                    { label: 'Share', icon: Share2, action: 'share' },
                                                     { label: 'Download JSON', icon: Download, action: 'download' },
                                                 ].map(({ label, icon: Icon, action }) => (
                                                     <div
@@ -333,10 +303,6 @@ export default function Dashboard() {
                                     <div className="flex items-center space-x-1">
                                         <Database className="w-4 h-4" />
                                         <span>{project.tables} tables</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                        <Users className="w-4 h-4" />
-                                        <span>{project.collaborators}</span>
                                     </div>
                                 </div>
 
@@ -389,57 +355,6 @@ export default function Dashboard() {
                         </Button>
                         <Button onClick={handleCreateProject} disabled={!newProjectName.trim()}>
                             Create Project
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {/* Share Modal */}
-            <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Share Project</DialogTitle>
-                        <DialogDescription>
-                            Share {selectedProjectForShare?.name} with others
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="shareRole">Access Level</Label>
-                            <Select value={shareRole} onValueChange={setShareRole}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select access level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="viewer">Viewer - Can view only</SelectItem>
-                                    <SelectItem value="editor">Editor - Can view and edit</SelectItem>
-                                    <SelectItem value="admin">Admin - Full access</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="shareLink">Share Link</Label>
-                            <div className="flex items-center space-x-2">
-                                <Input
-                                    id="shareLink"
-                                    value={`${shareLink}${selectedProjectForShare?.id}`}
-                                    readOnly
-                                    className="flex-1"
-                                />
-                                <Button
-                                    onClick={handleCopyLink}
-                                    size="sm"
-                                    variant="outline"
-                                    className="shrink-0"
-                                >
-                                    {linkCopied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={handleShareModalClose}>
-                            Close
                         </Button>
                     </DialogFooter>
                 </DialogContent>

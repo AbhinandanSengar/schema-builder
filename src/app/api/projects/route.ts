@@ -4,7 +4,7 @@ import { getAuthSession } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 type SchemaType = {
     nodes?: {
@@ -42,7 +42,7 @@ const ProjectSchema = z.object({
     name: z.string().min(1, "Project name is required"),
     description: z.string().optional(),
     schema: z.custom<Prisma.JsonValue & SchemaType>(() =>  "Invalid schema format"),
-    isPublic: z.boolean(),
+    userId: z.string(),
 });
 
 export async function POST(request: NextRequest) {
@@ -73,15 +73,14 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { name, description, schema, isPublic } = parsedProjectData.data;
+        const { name, description, schema, userId } = parsedProjectData.data;
 
         const newProject = await prisma.project.create({
             data: {
                 name,
                 description,
                 schema,
-                isPublic,
-                ownerId: session.user.id,
+                userId
             },
         });
 
@@ -123,39 +122,20 @@ export async function GET() {
 
     try {
         const projects = await prisma.project.findMany({
-            where: {
-                OR: [
-                    { ownerId: session.user.id },
-                    { members: { some: { userId: session.user.id } } }
-                ]
-            },
-            include: {
-                owner: {
-                    select: { id: true, name: true, email: true, image: true }
-                },
-                members: {
-                    include: {
-                        user: { select: { id: true, name: true, email: true, image: true } }
-                    }
-                }
-            },
+            where: { userId: session.user.id },
             orderBy: { updatedAt: "desc" }
         });
 
-        const transformed = projects.map(project => {
+        const transformed = projects.map((project: { id: string; name: string; description: string | null; schema: Prisma.JsonValue; updatedAt: Date }) => {
             const schemaData = project.schema as { nodes?: { id: string }[] };
             const tablesCount = Array.isArray(schemaData?.nodes) ? schemaData.nodes.length : 0;
-            const collaboratorsCount = (project.members?.length || 0) + 1;
 
             return {
                 id: project.id,
                 name: project.name,
                 description: project.description || "",
                 lastModified: project.updatedAt ? formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true }) : "unknown",
-                collaborators: collaboratorsCount,
-                tables: tablesCount,
-                owner: project.owner,
-                members: project.members
+                tables: tablesCount
             };
         });
 

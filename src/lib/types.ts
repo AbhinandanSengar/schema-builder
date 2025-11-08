@@ -26,12 +26,9 @@ export type ProjectSchema = {
 }
 
 export type Project = {
-  id: string;
-  name: string;
-  description?: string;
-  isPublic?: boolean;
-  ownerId: string;
-  schema: ProjectSchema;
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    name: string;
+    description?: string;
+    isPublic?: boolean;
+    schema: ProjectSchema;
 }

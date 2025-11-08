@@ -7,7 +7,6 @@ const UpdateProjectSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
   schema: z.record(z.string(), z.any()).optional(),
-  isPublic: z.boolean().optional(),
 });
 
 export async function GET(
@@ -29,10 +28,7 @@ export async function GET(
 
     try {
         const project = await prisma.project.findUnique({
-            where: {
-                id,
-                ownerId: session.user.id,
-            }
+            where: { id }
         });
 
         if (!project) {
@@ -101,10 +97,7 @@ export async function PATCH(
 
     try {
         const project = await prisma.project.findUnique({
-            where: {
-                id,
-                ownerId: session.user.id,
-            }
+            where: { id }
         });
         if (!project) {
             return NextResponse.json(
@@ -165,10 +158,7 @@ export async function DELETE(
 
     try {
         const project = await prisma.project.findUnique({
-            where: {
-                id,
-                ownerId: session.user.id,
-            }
+            where: { id }
         });
         if (!project) {
             return NextResponse.json(

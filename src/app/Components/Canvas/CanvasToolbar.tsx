@@ -1,12 +1,16 @@
+'use client';
+
 import clsx from 'clsx';
 import { Panel } from "@xyflow/react";
 import { Project } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import * as Toolbar from '@radix-ui/react-toolbar';
 import { ChevronLeftIcon, LockClosedIcon, LockOpen1Icon } from '@radix-ui/react-icons';
 import { Code2Icon, FileDownIcon, FileUpIcon, PlusIcon, Redo2Icon, Save, Undo2Icon, UsersIcon } from "lucide-react";
 import { AnimatedThemeToggler } from '@/components/magicui/animated-theme-toggler';
+import ShareModal from './ShareModal';
+import { useState } from 'react';
+import { Dock, DockIcon } from '@/components/ui/dock';
 
 type ToolbarProps = {
     project: Project | null;
@@ -21,10 +25,11 @@ type ToolbarProps = {
 
 export default function CanvasToolbar({ project, canvasLock, addTable, exportJSON, importJSON, generateCode, saveSchema, handleCanvasMove }: ToolbarProps) {
     const router = useRouter();
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     return (
         <>
-            <Panel position="top-left">
+            <Panel position="top-left" className='!top-3 !left-3'>
                 <div className='flex items-center gap-2'>
                     <div
                         onClick={() => router.push('/dashboard')}
@@ -42,17 +47,12 @@ export default function CanvasToolbar({ project, canvasLock, addTable, exportJSO
                 </div>
             </Panel>
 
-            <Panel position='top-center'>
-                <Toolbar.Root
-                    className="flex items-center gap-2 bg-white dark:bg-gray-900 p-2 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                >
-                    <Toolbar.Button
+            <Panel position='top-center' className='!top-3'>
+                <Dock>
+                    <DockIcon
                         onClick={handleCanvasMove}
                         className={clsx(
-                            "p-2 rounded transition-colors",
-                            canvasLock
-                                ? "bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
-                                : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                            canvasLock && "bg-gray-200 dark:bg-gray-800"
                         )}
                         title={canvasLock ? "Unlock Canvas" : "Lock Canvas"}
                     >
@@ -61,102 +61,90 @@ export default function CanvasToolbar({ project, canvasLock, addTable, exportJSO
                         ) : (
                             <LockOpen1Icon className="w-4 h-4" />
                         )}
-                    </Toolbar.Button>
+                    </DockIcon>
 
-                    <Toolbar.Separator
-                        orientation="vertical"
-                        className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1"
-                    />
+                    <div className="h-5 w-px bg-gray-300 dark:bg-gray-700" />
 
-                    <Toolbar.Button
+                    <DockIcon
                         onClick={addTable}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Add Table"
                     >
                         <PlusIcon className="w-4 h-4 border border-[#555454] rounded" />
-                    </Toolbar.Button>
+                    </DockIcon>
 
-                    <Toolbar.Separator
-                        orientation="vertical"
-                        className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1"
-                    />
+                    <div className="h-5 w-px bg-gray-300 dark:bg-gray-700" />
 
-                    <Toolbar.Button
+                    <DockIcon
                         onClick={importJSON}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Import JSON"
                     >
                         <FileDownIcon className="w-4 h-4" />
-                    </Toolbar.Button>
+                    </DockIcon>
 
-                    <Toolbar.Button
+                    <DockIcon
                         onClick={exportJSON}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Export JSON"
                     >
                         <FileUpIcon className="w-4 h-4" />
-                    </Toolbar.Button>
+                    </DockIcon>
 
-                    <Toolbar.Separator
-                        orientation="vertical"
-                        className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1"
-                    />
+                    <div className="h-5 w-px bg-gray-300 dark:bg-gray-700" />
 
-                    <Toolbar.Button
+                    <DockIcon
                         onClick={generateCode}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Generate Code"
                     >
                         <Code2Icon className="w-4 h-4" />
-                    </Toolbar.Button>
+                    </DockIcon>
 
-                    <Toolbar.Separator
-                        orientation="vertical"
-                        className="h-5 w-px bg-gray-300 dark:bg-gray-700 mx-1"
-                    />
+                    <div className="h-5 w-px bg-gray-300 dark:bg-gray-700" />
 
-                    <Toolbar.Button
+                    <DockIcon
                         onClick={saveSchema}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-                        title="Generate Code"
+                        title="Save Schema"
                     >
                         <Save className="w-4 h-4" />
-                    </Toolbar.Button>
-                </Toolbar.Root>
+                    </DockIcon>
+                </Dock>
             </Panel>
 
-            <Panel position='top-right' className='flex items-center gap-2'>
+            <Panel position='top-right' className='!top-3 !right-3 flex items-center gap-2'>
                 <AnimatedThemeToggler />
 
                 <Button
                     variant="default"
-                    onClick={() => {}}
+                    onClick={() => setIsShareModalOpen(true)}
                 >
                     <UsersIcon className="w-5 h-5 mr-1" />
                     Share
                 </Button>
             </Panel>
 
-            <Panel position='bottom-left'>
-                <Toolbar.Root
-                    className="p-2 flex items-center gap-4 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                >
-                    <Toolbar.Button
+            <Panel position='bottom-left' className='!bottom-3 !left-3'>
+                <Dock>
+                    <DockIcon
                         onClick={() => { }}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Undo"
                     >
                         <Undo2Icon className='w-4 h-4' />
-                    </Toolbar.Button>
-                    <Toolbar.Button
+                    </DockIcon>
+                    <DockIcon
                         onClick={() => { }}
-                        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Redo"
                     >
                         <Redo2Icon className='w-4 h-4' />
-                    </Toolbar.Button>
-                </Toolbar.Root>
+                    </DockIcon>
+                </Dock>
             </Panel>
+
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                projectId={project?.id || ''}
+                projectName={project?.name || 'Untitled Project'}
+                nodes={project?.schema.nodes || []}
+                edges={project?.schema.edges || []}
+            />
         </>
     )
 }

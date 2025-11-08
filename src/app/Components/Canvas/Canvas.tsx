@@ -24,8 +24,7 @@ import RelationshipModal from "./RelationshipModal";
 import { Toaster } from "@/components/ui/sonner";
 import { Project, ProjectSchema, RelationshipType, TableNodeData } from "@/lib/types";
 
-
-type CanvasProps = {
+interface CanvasProps {
     projectId: string;
 }
 
@@ -66,7 +65,6 @@ export default function Canvas({ projectId }: CanvasProps) {
     }, [selectedEdgeId, editorPosition]);
 
     useEffect(() => {
-        console.log(projectId)
         loadedRef.current = false;
         async function fetchProject() {
             try {
@@ -491,6 +489,7 @@ export default function Canvas({ projectId }: CanvasProps) {
                         nodesDraggable={!canvasLock}
                         nodesConnectable={!canvasLock}
                         elementsSelectable={!canvasLock}
+                        data-testid="rf-canvas"
                     >
                         <MiniMap
                             pannable

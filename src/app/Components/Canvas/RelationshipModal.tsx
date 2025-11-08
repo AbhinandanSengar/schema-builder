@@ -11,9 +11,10 @@ type RelationshipProps = {
 
 export default function RelationshipModal({ x, y, onSelect, onClose }: RelationshipProps) {
     const types: RelationshipType[] = ['1:1', '1:N', 'N:N'];
+
     return (
         <div
-            className="absolute z-[9999] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-lg rounded-md p-3 transition-colors duration-300"
+            className="absolute z-[9999] w-28 bg-background border shadow-lg rounded-md p-3"
             style={{ top: y, left: x, transform: 'translate(-50%, -100%)' }}
         >
             <p className="text-xs font-semibold mb-2 text-center">Relationship</p>
@@ -22,19 +23,22 @@ export default function RelationshipModal({ x, y, onSelect, onClose }: Relations
                     <Button
                         key={type}
                         variant={"outline"}
+                        size="sm"
                         onClick={() => {
                             onSelect(type);
                             onClose();
                         }}
-                        className="text-sm px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded w-full text-left transition-colors duration-200"
+                        className="w-full justify-start"
                     >
                         {type}
                     </Button>
                 ))}
             </div>
             <Button
+                variant="destructive"
+                size="sm"
                 onClick={onClose}
-                className="mt-2 text-xs text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 w-full text-left transition-colors duration-200"
+                className="w-full mt-2"
             >
                 Cancel
             </Button>

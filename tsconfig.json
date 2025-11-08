@@ -23,6 +23,6 @@
     },
     "typeRoots": ["./node_modules/@types", "./node_modules/tailwindcss/types"],
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "postcss.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/**/*.d.ts", "postcss.config.js"],
   "exclude": ["node_modules"]
 }

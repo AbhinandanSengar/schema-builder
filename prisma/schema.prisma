@@ -5,55 +5,52 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id             String   @id @default(cuid())
-  name           String?
-  email          String?  @unique
-  emailVerified  DateTime?
-  image          String?
-  hashedPassword String?
+    id             String    @id @default(cuid())
+    name           String?
+    email          String?   @unique
+    emailVerified  DateTime?
+    image          String?
+    hashedPassword String?
 
-  projects       Project[]      @relation("ProjectOwner")
-  memberOf       ProjectMember[]
+    projects       Project[]
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String
-  description  String?
-  isPublic    Boolean  @default(false)
-  schema      Json
-  ownerId     String
-  owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members     ProjectMember[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    schema      Json
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
-model ProjectMember {
-  id        String   @id @default(cuid())
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  role      String   @default("editor")
-  addedAt   DateTime @default(now())
+    shareTokens ShareToken[]
+    userId      String
+    user        User     @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    id         String   @id @default(cuid())
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
 
+model ShareToken {
+    id        String   @id @default(cuid())
+    token     String   @unique
+    projectId String
+    expires   DateTime
+
+    project   Project  @relation(fields: [projectId], references: [id])
+}
