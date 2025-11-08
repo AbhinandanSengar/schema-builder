@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Copy, Download, Image, X, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Copy, Download, X, Loader2 } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { Edge, Node } from '@xyflow/react';
 
 interface ShareModalProps {
     isOpen: boolean;
     onClose: () => void;
     projectId: string;
     projectName: string;
-    nodes: any[];
-    edges: any[];
+    nodes: Node[];
+    edges: Edge[];
 }
 
 export default function ShareModal({ isOpen, onClose, projectId, projectName, nodes, edges }: ShareModalProps) {
@@ -19,13 +21,7 @@ export default function ShareModal({ isOpen, onClose, projectId, projectName, no
     const [linkGenerated, setLinkGenerated] = useState(false);
 
     // Generate public share link on modal open
-    useEffect(() => {
-        if (isOpen && !linkGenerated) {
-            generateShareLink();
-        }
-    }, [isOpen, linkGenerated]);
-
-    const generateShareLink = async () => {
+    const generateShareLink = useCallback(async () => {
         setLoadingShareLink(true);
         try {
             const response = await axios.post(`/api/projects/${projectId}/share`);
@@ -40,13 +36,20 @@ export default function ShareModal({ isOpen, onClose, projectId, projectName, no
         } finally {
             setLoadingShareLink(false);
         }
-    };
+    }, [projectId]); // dependency: only re-create when projectId changes
+
+    useEffect(() => {
+        if (isOpen && !linkGenerated) {
+            generateShareLink();
+        }
+    }, [isOpen, linkGenerated, generateShareLink]);
 
     const copyToClipboard = async () => {
         try {
             await navigator.clipboard.writeText(shareLink);
             toast.success('Link copied to clipboard!');
         } catch (error) {
+            console.error('Failed to copy link', error);
             toast.error('Failed to copy link');
         }
     };
@@ -137,7 +140,7 @@ export default function ShareModal({ isOpen, onClose, projectId, projectName, no
                             </div>
                         ) : shareLink ? (
                             <div className="space-y-2">
-                            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
                                     <input
                                         type="text"
                                         value={shareLink}
@@ -173,7 +176,7 @@ export default function ShareModal({ isOpen, onClose, projectId, projectName, no
                             onClick={exportAsImage}
                             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left justify-start h-auto"
                         >
-                            <Image size={18} className="flex-shrink-0" />
+                            <ImageIcon size={18} className="flex-shrink-0" />
                             <div className="flex-1">
                                 <div className="font-medium text-slate-900 dark:text-white text-sm">Image (PNG)</div>
                                 <div className="text-xs text-slate-500 dark:text-slate-400">Export as high-quality image</div>

@@ -159,7 +159,7 @@ export default function CodeModal({ isOpen, onClose, onGenerate }: GenerateCodeP
                     {!generatedCode && !isGeneratingCode && !generateError && (
                         <div className="flex flex-col items-center justify-center h-full min-h-[360px] rounded-lg border border-dashed text-center">
                             <div className="text-muted-foreground">
-                                <p className="text-sm">Select a format and click "Generate Code" to begin.</p>
+                                <p className="text-sm">Select a format and click &quot;Generate Code&quot; to begin.</p>
                             </div>
                         </div>
                     )}
