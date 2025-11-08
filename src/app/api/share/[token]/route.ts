@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma"; // adjust if your prisma instance is elsewhere
 
 export async function GET(
-    _req: Request,
-    context: { params: { token: string } }
+    req: Request,
+    { params }: { params: Promise<{ token: string }> }
 ) {
-    const { token } = context.params;
+    const { token } = await params;
 
     try {
         const share = await prisma.shareToken.findUnique({
@@ -14,11 +14,25 @@ export async function GET(
         });
 
         if (!share) {
-            return NextResponse.json({ error: "Invalid share token" }, { status: 404 });
+            return NextResponse.json(
+                {
+                    error: "Invalid share token"
+                },
+                {
+                    status: 404
+                }
+            );
         }
 
         if (new Date() > share.expires) {
-            return NextResponse.json({ error: "Share token has expired" }, { status: 410 });
+            return NextResponse.json(
+                {
+                    error: "Share token has expired"
+                },
+                {
+                    status: 410
+                }
+            );
         }
 
         const project = await prisma.project.findUnique({
@@ -26,13 +40,26 @@ export async function GET(
         });
 
         if (!project) {
-            return NextResponse.json({ error: "Project not found" }, { status: 404 });
+            return NextResponse.json(
+                {
+                    error: "Project not found"
+                },
+                {
+                    status: 404
+                }
+            );
         }
 
-        return NextResponse.json({ project }, { status: 200 });
-    }
-    catch (error) {
-        console.error("Error fetching shared project:", error);
+        return NextResponse.json(
+            {
+                project
+            },
+            {
+                status: 200
+            }
+        );
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
