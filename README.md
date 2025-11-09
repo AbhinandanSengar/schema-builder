@@ -349,6 +349,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - GIthub: [@ShreyaKumari](https://github.com/ShreyaKumari16)
 - LinkedIn: [@ShreyaKumari](https://www.linkedin.com/in/shreyakumari03/)
 
+
+**Abhay Gupta**
+- GIthub: [@ebhay](https://github.com/ebhay)
+- LinkedIn: [@ebhay](https://www.linkedin.com/in/ebhay/)
+
+
+**Shubham Thakur**
+- GIthub: [@Sthakur729](https://github.com/Sthakur729)
+
+
 ## 🙏 Acknowledgments
 
 - [React Flow](https://reactflow.dev/) for the amazing flow library
