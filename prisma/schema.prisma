@@ -20,8 +20,6 @@ model User {
     emailVerified  DateTime?
     image          String?
     hashedPassword String?
-
-    projects       Project[]
 }
 
 model Project {
@@ -33,8 +31,6 @@ model Project {
     updatedAt   DateTime @updatedAt
 
     shareTokens ShareToken[]
-    userId      String
-    user        User     @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
